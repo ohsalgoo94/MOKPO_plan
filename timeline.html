@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U-SQUARE Interactive Timeline</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            /* Palette */
+            --c-bg: #FFFCF7;
+            --c-text: #193046;
+            --c-subtext: #738290;
+            
+            /* Greens */
+            --c-main: #2F6352;
+            --c-leaf: #5F8575;
+            --c-sage: #98B092;
+            --c-olive: #899481;
+            
+            /* Blues */
+            --c-navy: #193046;
+            --c-slate: #304F6D;
+            --c-mist: #889BAE;
+            
+            /* Accents (Warm) */
+            --c-terra: #E07D54;
+            --c-gold: #FFE1A0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--c-bg);
+            color: var(--c-text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 메인 컨테이너: 5x5 그리드 느낌의 캔버스 */
+        #canvas {
+            width: 100%;
+            height: 100%;
+            max-width: 800px; /* 적당한 크기 제한 */
+            max-height: 800px;
+            position: relative;
+            padding: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: center; /* 세로 중앙 정렬 (좌측 중앙 시작 효과) */
+            gap: 40px; /* 요소 간 간격 */
+            overflow-y: auto;
+        }
+
+        /* 타임라인 연결선 (배경) */
+        #canvas::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 40px;
+            right: 40px;
+            height: 4px;
+            background: #e0e0e0;
+            z-index: 0;
+            transform: translateY(-50%);
+            border-radius: 2px;
+            display: none; /* Flex wrap 구조라 선 연결은 복잡해지므로 숨김/점선으로 대체 가능 */
+        }
+
+        /* 공통 노드 스타일 */
+        .node {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 1. 시작점 (U-SQUARE) */
+        .start-node {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--c-main);
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(47, 99, 82, 0.3);
+            border: 4px solid #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .start-node .time-label {
+            position: absolute;
+            top: -30px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--c-main);
+            letter-spacing: 0.5px;
+        }
+
+        .start-node .label-text {
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+        
+        .start-node .sub-text {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+            font-weight: 300;
+        }
+
+        .start-node::after {
+            content: 'START';
+            position: absolute;
+            bottom: -25px;
+            font-size: 12px;
+            color: var(--c-leaf);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* 2. 일반 이벤트 노드 (타원형) */
+        .event-node {
+            min-width: 140px;
+            height: 90px; /* 타원형 비율 */
+            padding: 15px 20px;
+            background-color: var(--c-bg);
+            border-radius: 24px; /* 둥근 사각형/타원 느낌 */
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px; /* 시작점과 중앙 정렬 맞추기 위해 */
+        }
+
+        /* 특정 테마 (따뜻한 색) */
+        .theme-warm {
+            background-color: var(--c-terra);
+            color: #fff;
+            border: 2px solid var(--c-gold);
+        }
+        .theme-warm .time-range { color: var(--c-gold); }
+        .theme-warm .event-desc { color: #fff; }
+
+        /* 특정 테마 (쿨/네이처) */
+        .theme-nature {
+            background-color: var(--c-leaf);
+            color: #fff;
+            border: 2px solid var(--c-sage);
+        }
+        .theme-nature .time-range { color: var(--c-bg); }
+
+        /* 텍스트 스타일 */
+        .time-range {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+
+        .event-desc {
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 삭제 버튼 (호버시 등장) */
+        .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: #ff4d4d;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border: 2px solid #fff;
+        }
+
+        .event-node:hover .delete-btn {
+            opacity: 1;
+        }
+
+        /* 입력 컨트롤 (우측 하단 FAB) */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            background-color: var(--c-main);
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 28px;
+            transition: transform 0.2s;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            background-color: var(--c-leaf);
+        }
+
+        /* 입력 모달 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(25, 48, 70, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: #fff;
+            padding: 25px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .modal h3 {
+            color: var(--c-main);
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--c-subtext);
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            font-family: 'Pretendard';
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--c-main);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Pretendard';
+        }
+
+        .btn-cancel { background: #f0f0f0; color: #666; }
+        .btn-save { background: var(--c-main); color: white; }
+
+        /* 안내 텍스트 */
+        .helper-text {
+            font-size: 11px;
+            color: var(--c-terra);
+            margin-top: 6px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 타임라인 캔버스 -->
+    <div id="canvas">
+        <!-- 시작점 (항상 존재) -->
+        <div class="node start-node">
+            <span class="time-label">14:00</span>
+            <span class="label-text">U-SQUARE</span>
+            <span class="sub-text">Start Point</span>
+        </div>
+        <!-- 여기에 자바스크립트로 노드들이 추가됩니다 -->
+    </div>
+
+    <!-- 입력 버튼 -->
+    <div class="fab" onclick="openModal()">+</div>
+
+    <!-- 입력 모달 -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h3>새로운 일정 추가</h3>
+            <div class="input-group">
+                <!-- 라벨 및 안내 문구 수정 -->
+                <label>일정 입력 (형식: 시간 / 내용)</label>
+                <input type="text" id="eventInput" placeholder="예: 18:00 / 저녁  또는  14:15 ~ 15:30 / 목포행" onkeypress="handleEnter(event)">
+                <p class="helper-text">시간과 내용은 ' / ' 기호로 구분해주세요.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">취소</button>
+                <button class="btn-save" onclick="saveEvent()">추가하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 설정 및 상태 관리 ---
+        const STORAGE_KEY = 'usquare_timeline_data';
+        let events = [];
+
+        // 색상 팔레트
+        const colors = {
+            warm: ['#E07D54', '#FFE1A0'], // 목포행 등 강조
+            nature: ['#5F8575', '#98B092', '#304F6D', '#889BAE'] // 일반
+        };
+
+        // 초기 로드
+        window.onload = () => {
+            loadEvents();
+            render();
+        };
+
+        // --- 기능 로직 ---
+
+        function loadEvents() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                events = JSON.parse(saved);
+            }
+        }
+
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+        }
+
+        function openModal() {
+            document.getElementById('modal').classList.add('open');
+            document.getElementById('eventInput').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+            document.getElementById('eventInput').value = '';
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') saveEvent();
+        }
+
+        function saveEvent() {
+            const input = document.getElementById('eventInput').value;
+            if (!input.trim()) return;
+
+            // 파싱 로직: "시간 / 내용" 또는 "시간 ~ 시간 / 내용"
+            // 구분자 /, | 등을 허용
+            const parts = input.split(/[\/|]/);
+            
+            let timeRange = '';
+            let content = '';
+
+            if (parts.length >= 2) {
+                timeRange = parts[0].trim();
+                content = parts[1].trim();
+            } else {
+                // 형식이 안 맞으면 (슬래시가 없으면) 일단 전체를 내용으로 보되,
+                // 만약 숫자로 시작하면 사용자가 실수를 한 것일 수 있으므로 시간으로 추측해볼 수도 있음.
+                // 여기서는 안전하게 기존 로직 유지하되, 구분자가 없으면 내용으로 처리.
+                timeRange = 'Time Unset';
+                content = input.trim();
+            }
+
+            // 키워드 분석 (이모지 및 테마 자동 적용)
+            let emoji = '';
+            let theme = 'nature';
+
+            if (content.includes('목포') || content.includes('행') || content.includes('버스') || content.includes('출발')) {
+                emoji = '🚌';
+                theme = 'warm';
+            } else if (content.includes('바다')) {
+                emoji = '🌊';
+                theme = 'nature';
+            } else if (content.includes('식사') || content.includes('점심') || content.includes('저녁') || content.includes('먹')) {
+                emoji = '🍱';
+                theme = 'warm';
+            } else if (content.includes('휴식') || content.includes('커피') || content.includes('카페')) {
+                emoji = '☕';
+                theme = 'nature';
+            } else if (content.includes('도착') || content.includes('집')) {
+                emoji = '🏠';
+                theme = 'nature';
+            } else {
+                emoji = '📌';
+            }
+
+            const newEvent = {
+                id: Date.now(),
+                timeRange: timeRange,
+                content: content,
+                emoji: emoji,
+                theme: theme
+            };
+
+            events.push(newEvent);
+            saveToStorage();
+            render();
+            closeModal();
+        }
+
+        function deleteEvent(id) {
+            if(confirm('이 일정을 삭제하시겠습니까?')) {
+                events = events.filter(e => e.id !== id);
+                saveToStorage();
+                render();
+            }
+        }
+
+        // --- 렌더링 ---
+        function render() {
+            const canvas = document.getElementById('canvas');
+            // 기존 노드 중 start-node를 제외하고 제거
+            const existingNodes = canvas.querySelectorAll('.event-node');
+            existingNodes.forEach(node => node.remove());
+
+            // 시간순 정렬
+            // 단순 문자열 비교 시 "18:00"이 "14:00 ~ 15:00"보다 뒤에 오도록 함.
+            // 문자열 비교는 앞에서부터 하므로 "14" vs "18" 비교가 되어 정상 작동함.
+            events.sort((a, b) => a.timeRange.localeCompare(b.timeRange));
+
+            events.forEach(evt => {
+                const node = document.createElement('div');
+                
+                // 스타일 결정
+                let bg, text, border;
+                if (evt.theme === 'warm') {
+                    node.className = 'node event-node theme-warm';
+                } else {
+                    node.className = 'node event-node theme-nature';
+                    // 랜덤 배경색 (Nature 테마 내에서)
+                    const randomColor = colors.nature[Math.floor(Math.random() * colors.nature.length)];
+                    node.style.backgroundColor = randomColor;
+                    node.style.borderColor = '#fff';
+                }
+
+                node.innerHTML = `
+                    <div class="delete-btn" onclick="deleteEvent(${evt.id})">×</div>
+                    <span class="time-range">${evt.timeRange}</span>
+                    <span class="event-desc">${evt.emoji} ${evt.content}</span>
+                `;
+
+                canvas.appendChild(node);
+            });
+        }
+    </script>
+</body>
+</html>
