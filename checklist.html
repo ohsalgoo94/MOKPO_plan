@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mid-Century Retro Checklist</title>
+    <title>Free Spirit Green Checklist</title>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-            /* Palette */
-            --c-bg-base: #EFE5D5;
-            --c-flower-dark: #26413C;
-            --c-flower-center: #B8CE9C;
+            /* Palette - Free Spirit Green Theme */
+            --c-bg-base: #FFFCF7; /* Warm Cream Background */
+            
+            /* Main Accents (Greens) */
+            --c-green-deep: #2F6352;  /* Main Deep Green */
+            --c-green-leaf: #5F8575;  /* Leaf Green */
+            --c-green-soft: #98B092;  /* Sage Green */
+            --c-accent-pop: #E07D54;  /* Terracotta (Small Accent for fun) */
             
             /* UI Colors */
             --c-text: #1A2E2A;
             --c-subtext: #5D706A;
-            --c-card-bg: rgba(255, 252, 248, 0.92);
-            --c-accent: #E07D54;
+            --c-card-bg: rgba(255, 255, 255, 0.85);
+            --c-shadow: rgba(47, 99, 82, 0.15);
         }
 
         * {
@@ -35,11 +39,20 @@
             justify-content: center;
             align-items: center;
             
-            /* Background Pattern */
+            /* Background: Abstract & Free-spirited Green Blobs */
             background-color: var(--c-bg-base);
-            background-image: url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2326413C' fill-opacity='1'%3E%3Cpath d='M80 35C90 15 110 15 120 35C135 25 145 40 135 55C150 65 145 85 125 90C140 105 125 125 105 115C100 135 80 130 80 110C80 130 60 135 55 115C35 125 20 105 35 90C15 85 10 65 25 55C15 40 25 25 40 35C50 15 70 15 80 35Z' /%3E%3C/g%3E%3Ccircle cx='80' cy='80' r='12' fill='%23B8CE9C' /%3E%3C/svg%3E");
-            background-size: 120px 120px;
-            background-position: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, var(--c-green-soft) 0%, transparent 25%),
+                radial-gradient(circle at 90% 80%, var(--c-green-deep) 0%, transparent 30%),
+                radial-gradient(circle at 50% 50%, var(--c-green-leaf) 0%, transparent 40%),
+                radial-gradient(circle at 80% 10%, rgba(224, 125, 84, 0.2) 0%, transparent 20%); /* Slight terra accent */
+            background-size: 150% 150%;
+            animation: gradientMove 18s ease infinite alternate;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
         }
 
         .container {
@@ -47,151 +60,140 @@
             max-width: 450px;
             height: 85vh;
             background: var(--c-card-bg);
-            backdrop-filter: blur(12px);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(26, 46, 42, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px var(--c-shadow);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
             position: relative;
         }
 
-        header {
-            padding: 35px 25px 20px;
-        }
-
-        h1 {
-            font-size: 26px;
-            color: var(--c-flower-dark);
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .subtitle {
-            font-size: 14px;
-            color: var(--c-subtext);
-            margin-top: 6px;
-            font-weight: 500;
-        }
-
+        /* 입력창 영역 */
         .input-area {
-            padding: 35px 25px 20px; /* 제목 삭제로 인한 상단 여백 확보 */
+            padding: 40px 25px 20px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         input[type="text"] {
             flex: 1;
-            padding: 14px 18px;
-            border-radius: 14px;
-            border: 2px solid #EAEAEA;
+            padding: 16px 20px;
+            border-radius: 20px;
+            border: 2px solid transparent;
             background: #fff;
-            font-size: 15px;
+            font-size: 16px;
             font-family: inherit;
             outline: none;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             color: var(--c-text);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
 
         input[type="text"]:focus {
-            border-color: var(--c-flower-dark);
-            box-shadow: 0 0 0 4px rgba(38, 65, 60, 0.1);
+            border-color: var(--c-green-deep);
+            box-shadow: 0 4px 20px rgba(47, 99, 82, 0.2);
+            transform: translateY(-2px);
+        }
+
+        input[type="text"]::placeholder {
+            color: #A0A0A0;
         }
 
         button.add-btn {
-            width: 52px;
-            background: var(--c-flower-dark);
+            width: 56px;
+            background: var(--c-green-deep);
             border: none;
-            border-radius: 14px;
-            color: var(--c-flower-center);
-            font-size: 26px;
+            border-radius: 18px;
+            color: white;
+            font-size: 28px;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(38, 65, 60, 0.2);
+            box-shadow: 0 8px 20px rgba(47, 99, 82, 0.3);
         }
 
         button.add-btn:hover {
-            background: #1E332F;
-            transform: scale(1.05);
+            background: var(--c-green-leaf);
+            transform: scale(1.1) rotate(90deg);
         }
 
         ul {
             list-style: none;
             flex: 1;
             overflow-y: auto;
-            padding: 0 25px 30px;
+            padding: 0 25px 40px;
         }
 
-        ul::-webkit-scrollbar { width: 6px; }
-        ul::-webkit-scrollbar-thumb { background: #D0D0D0; border-radius: 3px; }
+        ul::-webkit-scrollbar { width: 4px; }
+        ul::-webkit-scrollbar-thumb { background: var(--c-green-soft); border-radius: 2px; }
         ul::-webkit-scrollbar-track { background: transparent; }
 
         li {
-            background: #fff;
-            margin-bottom: 12px;
-            padding: 18px;
-            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 14px;
+            padding: 20px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             gap: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-            border: 1px solid #F0F0F0;
-            transition: all 0.2s ease;
-            animation: slideIn 0.3s ease forwards;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            border: 1px solid transparent;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: slideIn 0.4s ease forwards;
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         li:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-            border-color: var(--c-flower-center);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(47, 99, 82, 0.1);
+            border-color: var(--c-green-soft);
         }
 
+        /* 체크박스 커스텀 */
         .check-circle {
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            border: 2px solid var(--c-flower-center);
+            border: 2.5px solid var(--c-green-deep);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.3s;
             flex-shrink: 0;
-            background: #fff;
+            background: white;
         }
 
         li.completed .check-circle {
-            background: var(--c-flower-center);
-            border-color: var(--c-flower-center);
+            background: var(--c-green-deep);
+            border-color: var(--c-green-deep);
+            transform: scale(1.1);
         }
 
         li.completed .check-circle::after {
             content: '✔';
-            color: var(--c-flower-dark);
+            color: white;
             font-size: 14px;
-            font-weight: 800;
+            font-weight: 900;
         }
 
+        /* 텍스트 스타일 */
         .task-text {
             flex: 1;
             font-size: 16px;
             font-weight: 600;
             color: var(--c-text);
-            transition: all 0.2s;
+            transition: all 0.3s;
             word-break: break-all;
-            letter-spacing: -0.3px;
+            letter-spacing: -0.2px;
         }
 
         li.completed .task-text {
@@ -200,85 +202,85 @@
             font-weight: 400;
         }
 
+        /* 삭제 버튼 */
         .delete-btn {
-            color: #DADADA;
+            color: #E0E0E0;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 22px;
             padding: 5px;
-            transition: color 0.2s;
+            transition: color 0.2s, transform 0.2s;
         }
 
         .delete-btn:hover {
-            color: var(--c-accent);
+            color: var(--c-accent-pop); /* 삭제 시 살짝 튀는 색상 */
+            transform: rotate(90deg);
         }
 
+        /* 빈 상태 */
         .empty-state {
-            text-align: center;
-            margin-top: 60px;
-            color: var(--c-subtext);
-            font-size: 15px;
             display: none;
-            line-height: 1.6;
         }
         
         ul:empty + .empty-state {
             display: block;
-        }
-
-        h1::after {
-            content: '🌿';
-            font-size: 20px;
-            position: relative;
-            top: -2px;
-            opacity: 0.8;
+            height: 50px; 
         }
 
         /* 삭제 확인 모달 */
         .modal-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(239, 229, 213, 0.6); /* 배경색과 어울리는 딤 처리 */
-            backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 10;
-            border-radius: 24px;
+            border-radius: 30px;
         }
 
         .modal {
             background: #fff;
-            padding: 20px 25px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 25px 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(47, 99, 82, 0.2);
             text-align: center;
             width: 80%;
             max-width: 300px;
+            border: 1px solid var(--c-green-soft);
         }
 
         .modal p {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: var(--c-text);
-            font-weight: 500;
+            font-weight: 700;
+            font-size: 17px;
         }
 
         .modal-btn-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
         }
 
         .modal-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
             border: none;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
+            transition: transform 0.2s;
         }
+        
+        .modal-btn:hover { transform: scale(1.05); }
 
-        .btn-cancel { background: #f0f0f0; color: #666; }
-        .btn-confirm { background: var(--c-accent); color: white; }
+        .btn-cancel { background: #F5F5F5; color: #888; }
+        .btn-confirm { 
+            background: var(--c-green-deep); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(47, 99, 82, 0.3);
+        }
 
     </style>
 </head>
@@ -286,7 +288,7 @@
 
     <div class="container">
         <div class="input-area">
-            <input type="text" id="taskInput" placeholder="할 일을 입력하세요..." onkeypress="handleEnter(event)">
+            <input type="text" id="taskInput" placeholder="챙길 것" onkeypress="handleEnter(event)">
             <button class="add-btn" onclick="addTask()">+</button>
         </div>
 
@@ -294,14 +296,12 @@
             <!-- 리스트 아이템이 여기에 추가됩니다 -->
         </ul>
         
-        <div class="empty-state">
-            오늘의 할 일을<br>자유롭게 기록해보세요.
-        </div>
+        <div class="empty-state"></div>
 
         <!-- 커스텀 삭제 모달 -->
         <div class="modal-overlay" id="deleteModal">
             <div class="modal">
-                <p>정말 삭제하시겠습니까?</p>
+                <p>정말 삭제할까요? 🌿</p>
                 <div class="modal-btn-group">
                     <button class="modal-btn btn-cancel" onclick="closeDeleteModal()">취소</button>
                     <button class="modal-btn btn-confirm" onclick="confirmDeleteTask()">삭제</button>
@@ -311,7 +311,7 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'usquare_checklist_data';
+        const STORAGE_KEY = 'usquare_checklist_green_blob_data'; // 테마 변경으로 데이터 키 분리
         let tasks = [];
         let pendingDeleteId = null;
 
@@ -343,7 +343,7 @@
                 text: text,
                 completed: false
             };
-            tasks.push(newTask);
+            tasks.push(newTask); // 최신 항목을 아래로
             saveTasks();
             render();
             input.value = '';
@@ -358,7 +358,6 @@
             render();
         }
 
-        // --- 삭제 로직 수정 (confirm 제거) ---
         function openDeleteModal(id) {
             pendingDeleteId = id;
             document.getElementById('deleteModal').style.display = 'flex';
@@ -382,10 +381,11 @@
             const list = document.getElementById('taskList');
             list.innerHTML = '';
             
+            const emptyState = document.querySelector('.empty-state');
             if (tasks.length === 0) {
-                document.querySelector('.empty-state').style.display = 'block';
+                emptyState.style.display = 'block';
             } else {
-                document.querySelector('.empty-state').style.display = 'none';
+                emptyState.style.display = 'none';
             }
 
             tasks.forEach(task => {
