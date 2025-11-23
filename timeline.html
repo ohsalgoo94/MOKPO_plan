@@ -42,8 +42,19 @@
             height: 100vh;
             overflow: hidden;
             display: flex;
+            flex-direction: column; /* 요소들을 세로로 배치 */
             justify-content: center;
             align-items: center;
+        }
+
+        /* 제목 스타일 */
+        h1.title {
+            font-size: 48px;
+            font-weight: 800; /* 아주 굵게 */
+            color: #000000;   /* 완전한 검은색 */
+            margin-bottom: 10px;
+            z-index: 10;
+            letter-spacing: -1px;
         }
 
         /* 메인 컨테이너 */
@@ -313,6 +324,9 @@
     </style>
 </head>
 <body>
+
+    <!-- 제목 추가 -->
+    <h1 class="title">TIMELINE</h1>
 
     <div id="canvas">
         <div class="node start-node">
